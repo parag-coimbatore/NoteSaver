@@ -2,22 +2,17 @@ const express = require('express');
 const notes = require('./data/notes')
 const dotenv = require('dotenv')
 const connectDB = require("./config/db")
+const userRoutes = require('./routes/userRoutes');
+const { notFound, errorHandler } = require('./middlewares/errorMiddleware');
 
 //If we dont want to write again the npm start, we must install nodemon
 // This should already be declared in your API file
-
 // ADD THIS
-
 // Created an object of this imported package
 const app = express();
 dotenv.config();
 connectDB()
-
-
-const PORT = process.env.PORT || 5000;
-
-// Web server is created here
-app.listen(PORT, console.log(`Server started at PORT {PORT}`)) 
+app.use(express.json())
 
 // Created a script in package.json so that we dont have to write node backend/server.js 
 // just write npm start
@@ -32,9 +27,12 @@ app.get('/api/notes', (req,res)=> {
     res.json(notes)
 })
  
-//to fetch only the specific note with help of id 
-app.get('/api/notes/:id/:id2',(req,res)=>{
-    const note = notes.find((n)=>n._id===req.params.id);
-    res.send(note)
-})
+app.use('/api/users', userRoutes)
 
+app.use(notFound)
+app.use(errorHandler)
+
+const PORT = process.env.PORT || 5000;
+
+// Web server is created here
+app.listen(PORT, console.log(`Server started at PORT {PORT}`)) 
